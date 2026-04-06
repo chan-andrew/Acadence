@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model University {
+  id      String   @id @default(cuid())
+  name    String
+  slug    String   @unique
+  courses Course[]
+}
+
+model Professor {
+  id             String    @id @default(cuid())
+  name           String
+  department     String
+  rmpRating      Float?
+  rmpDifficulty  Float?
+  wouldTakeAgain Float?
+  topTags        String[]
+  sections       Section[]
+}
+
+model Course {
+  id            String    @id @default(cuid())
+  code          String
+  title         String
+  description   String?
+  credits       Int
+  department    String
+  fulfills      String[]
+  prerequisites String[]
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+  sections      Section[]
+}
+
+model Section {
+  id            String     @id @default(cuid())
+  courseId       String
+  course        Course     @relation(fields: [courseId], references: [id])
+  sectionNumber String
+  professorId   String?
+  professor     Professor? @relation(fields: [professorId], references: [id])
+  days          String[]
+  startTime     String
+  endTime       String
+  location      String?
+  totalSeats    Int
+  openSeats     Int
+  waitlist      Int        @default(0)
+  term          String
+  type          String     @default("Lecture")
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String   @default("My Schedule")
+  term      String
+  sections  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
