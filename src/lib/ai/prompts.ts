@@ -41,11 +41,11 @@ Time formats — always return 24-hour "HH:MM":
   - "evening" → startTimeAfter "17:00"
   - "no 8ams" → startTimeAfter "09:00"
 
-Days:
-- "MWF" → ["Mon", "Wed", "Fri"]
-- "TTh", "Tu/Th", "tuesday thursday", "Tuesday Thursday" → ["Tue", "Thu"]
-- "MW" → ["Mon", "Wed"]
-- "TR" → ["Tue", "Thu"]
+Days — always return the database day codes (single-letter, with "Th" for Thursday):
+- "MWF" → ["M", "W", "F"]
+- "TTh", "Tu/Th", "tuesday thursday", "Tuesday Thursday", "TR" → ["T", "Th"]
+- "MW" → ["M", "W"]
+- Single days: monday → ["M"], tuesday → ["T"], wednesday → ["W"], thursday → ["Th"], friday → ["F"]
 
 Departments and fulfills:
 - "CS" = "Computer Science", "MATH" = "Mathematics", "ENGL"/"english" = "English", etc. Prefer full department names.

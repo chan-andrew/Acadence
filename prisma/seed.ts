@@ -443,11 +443,10 @@ async function main() {
     { start: "16:00", end: "17:15" },
   ];
 
-  const eveningSlots = [
-    { start: "18:00", end: "20:30", days: ["M", "W"] },
-    { start: "18:00", end: "20:30", days: ["T", "Th"] },
-    { start: "18:00", end: "20:30", days: ["W"] },
-  ];
+  // Evening slots removed: every section must be MWF 50min or TTh 75min.
+  // Add an extra evening MWF and TTh slot so spread is preserved.
+  mwfSlots.push({ start: "16:00", end: "16:50" }, { start: "17:00", end: "17:50" });
+  tthSlots.push({ start: "17:30", end: "18:45" }, { start: "19:00", end: "20:15" });
 
   const buildingsByDept: Record<string, string[]> = {
     "Computer Science": ["Sennott Square 5502", "Sennott Square 6110", "Sennott Square 5313", "Sennott Square 6516", "Sennott Square 5505"],
@@ -548,25 +547,17 @@ async function main() {
         openSeats = Math.floor(seededRandom() * totalSeats * 0.6) + 1;
       }
 
-      // Pick time slot
+      // Pick time slot — every lecture is either MWF (50min) or TTh (75min)
       let days: string[];
       let startTime: string;
       let endTime: string;
 
-      // Small chance of evening (~8%)
-      if (seededRandom() < 0.08) {
-        const ev = pick(eveningSlots);
-        days = ev.days;
-        startTime = ev.start;
-        endTime = ev.end;
-      } else if (seededRandom() < 0.5) {
-        // MWF
+      if (seededRandom() < 0.5) {
         days = ["M", "W", "F"];
         const slot = mwfSlots[s % mwfSlots.length];
         startTime = slot.start;
         endTime = slot.end;
       } else {
-        // TTh
         days = ["T", "Th"];
         const slot = tthSlots[s % tthSlots.length];
         startTime = slot.start;
@@ -603,7 +594,7 @@ async function main() {
         sections.push({
           sectionNumber: `L${String(l + 1).padStart(2, "0")}`,
           professorId: prof.id,
-          days: l % 2 === 0 ? ["T"] : ["Th"],
+          days: ["T", "Th"],
           startTime: labSlot.start,
           endTime: labSlot.end,
           location: pick(buildings),
@@ -630,7 +621,7 @@ async function main() {
         sections.push({
           sectionNumber: `R${String(r + 1).padStart(2, "0")}`,
           professorId: prof.id,
-          days: ["F"],
+          days: ["M", "W", "F"],
           startTime: recSlot.start,
           endTime: recSlot.end,
           location: pick(buildings),

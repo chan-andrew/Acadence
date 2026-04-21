@@ -49,6 +49,13 @@ export function ChatPanel({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
@@ -115,13 +122,13 @@ export function ChatPanel({
 
       {/* Input */}
       <div className="p-4 border-t border-border">
-        <div className="flex items-end gap-2 bg-surface border border-border rounded-xl px-3 py-2 focus-within:border-accent transition-colors duration-150">
+        <div className="flex items-center gap-2 bg-surface border border-border rounded-xl px-3 py-2 focus-within:border-accent transition-colors duration-150">
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about courses... (⌘K)"
+            placeholder="Ask about courses..."
             rows={1}
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-tertiary resize-none outline-none max-h-24"
             style={{ minHeight: "20px" }}

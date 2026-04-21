@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarBlock } from "@/hooks/useCalendar";
-import { getCourseColor } from "@/lib/utils/colors";
+import { getDepartmentColor } from "@/lib/utils/colors";
 import { formatTime } from "@/lib/utils/formatTime";
 import { AlertTriangle } from "lucide-react";
 
@@ -11,7 +11,7 @@ interface CourseBlockProps {
 }
 
 export function CourseBlock({ block, onClick }: CourseBlockProps) {
-  const color = getCourseColor(block.section.course.id);
+  const color = getDepartmentColor(block.section.course.department);
 
   return (
     <button

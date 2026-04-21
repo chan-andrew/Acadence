@@ -23,8 +23,8 @@ function fallbackParse(message: string): ParsedQuery {
     searchText: null,
   };
 
-  if (/mwf/i.test(lower)) filters.days = ["Mon", "Wed", "Fri"];
-  else if (/t(u)?(\s*\/?\s*)th/i.test(lower)) filters.days = ["Tue", "Thu"];
+  if (/mwf/i.test(lower)) filters.days = ["M", "W", "F"];
+  else if (/t(u)?(\s*\/?\s*)th/i.test(lower)) filters.days = ["T", "Th"];
 
   if (/morning/i.test(lower)) filters.startTimeBefore = "12:00";
   if (/afternoon/i.test(lower)) {
