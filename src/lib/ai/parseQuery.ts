@@ -8,6 +8,8 @@ function fallbackParse(message: string): ParsedQuery {
   const lower = message.toLowerCase();
   const filters: ParsedQuery["filters"] = {
     days: null,
+    startTime: null,
+    endTime: null,
     startTimeAfter: null,
     startTimeBefore: null,
     endTimeBefore: null,

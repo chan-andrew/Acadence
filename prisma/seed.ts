@@ -2,7 +2,13 @@ import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL! });
+const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL!;
+const useSSL = connectionString.includes("sslmode=");
+const adapter = new PrismaPg(
+  useSSL
+    ? { connectionString, ssl: { rejectUnauthorized: false } }
+    : { connectionString }
+);
 const prisma = new PrismaClient({
   adapter,
   transactionOptions: { timeout: 30000 },

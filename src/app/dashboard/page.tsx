@@ -11,13 +11,15 @@ import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 import { formatDays, formatTimeRange } from "@/lib/utils/formatTime";
+import { findConflicts } from "@/lib/utils/timeConflict";
 import { MessageSquare, BookOpen } from "lucide-react";
 import clsx from "clsx";
 
 type LeftPanel = "chat" | "browse";
 
 export default function DashboardPage() {
-  const { messages, isLoading, sendMessage, aiEnabled } = useChat();
+  const { messages, isLoading, sendMessage, appendAssistantMessage, aiEnabled } =
+    useChat();
   const { sections, conflicts, addSection, removeSection, totalCredits, sectionIds } =
     useSchedule();
   const { toasts, addToast, dismissToast } = useToast();
@@ -37,10 +39,44 @@ export default function DashboardPage() {
   }, [conflicts]);
 
   const handleSend = useCallback(
-    (message: string) => {
-      sendMessage(message, sectionIds);
+    async (message: string) => {
+      const result = await sendMessage(message, sectionIds);
+      if (result.intent !== "add") return;
+      if (!result.courses.length) {
+        appendAssistantMessage(
+          "No matching sections found. Try adjusting the time, days, or department."
+        );
+        return;
+      }
+
+      const skipped: string[] = [];
+      for (const candidate of result.courses) {
+        const conflicts = findConflicts(sections, candidate);
+        if (conflicts.length === 0) {
+          const { added } = addSection(candidate);
+          if (added) {
+            const prof = candidate.professor;
+            const rating =
+              prof?.rmpRating != null
+                ? ` (Prof. ${prof.name}, ${prof.rmpRating}★)`
+                : "";
+            const skipNote = skipped.length
+              ? ` Skipped ${skipped.join(", ")} due to time conflicts.`
+              : "";
+            appendAssistantMessage(
+              `✓ Added ${candidate.course.code} — ${candidate.course.title}${rating}.${skipNote}`
+            );
+            addToast(`${candidate.course.code} added to schedule`, "success");
+          }
+          return;
+        }
+        skipped.push(candidate.course.code);
+      }
+      appendAssistantMessage(
+        `All ${result.courses.length} top options conflict with your schedule. Try removing something first.`
+      );
     },
-    [sendMessage, sectionIds]
+    [sendMessage, sectionIds, sections, addSection, appendAssistantMessage, addToast]
   );
 
   const handleAddCourse = useCallback(

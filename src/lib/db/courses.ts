@@ -13,6 +13,14 @@ export async function queryCourses(filters: ParsedFilters) {
     conditions.push({ days: { hasSome: filters.days } });
   }
 
+  if (filters.startTime) {
+    conditions.push({ startTime: filters.startTime });
+  }
+
+  if (filters.endTime) {
+    conditions.push({ endTime: filters.endTime });
+  }
+
   if (filters.startTimeAfter) {
     conditions.push({ startTime: { gte: filters.startTimeAfter } });
   }

@@ -4,6 +4,8 @@ Return ONLY valid JSON matching this schema:
 {
   "filters": {
     "days": string[] | null,
+    "startTime": string | null,
+    "endTime": string | null,
     "startTimeAfter": string | null,
     "startTimeBefore": string | null,
     "endTimeBefore": string | null,
@@ -17,21 +19,47 @@ Return ONLY valid JSON matching this schema:
     "searchText": string | null
   },
   "conversational_response": string,
-  "intent": "search" | "remove" | "info" | "general"
+  "intent": "search" | "add" | "remove" | "info" | "general"
 }
 
-If the student asks about a professor, set intent to "info".
-If the student wants to remove a course, set intent to "remove".
-If the query is general conversation, set intent to "general" and respond helpfully.
+Intents:
+- "add" — student wants a course added right now ("add a humanities course", "put a calc class on my schedule TTh mornings", "schedule me for an English elective", "give me a philosophy class MWF"). When intent is "add", write a concise conversational_response acknowledging what you're looking for; the app will auto-pick the highest-rated non-conflicting section.
+- "search" — student wants to see options without committing ("find morning CS classes", "what humanities classes are open?").
+- "remove" — student wants a course removed.
+- "info" — student asks about a professor or course.
+- "general" — anything else; respond conversationally.
 
-Be smart about synonyms:
-- "nice professor" or "easy professor" = minProfRating >= 3.5
-- "morning class" = startTimeBefore: "12:00"
-- "afternoon" = startTimeAfter: "12:00", endTimeBefore: "17:00"
-- "no 8ams" = startTimeAfter: "09:00"
-- "MWF" = ["Mon", "Wed", "Fri"]
-- "TTh" or "Tu/Th" = ["Tue", "Thu"]
-- "humanities" or "gen ed" = look at fulfills tags
-- "open seats" or "available" = minSeatsOpen: 1
-- "easy class" = maxDifficulty: 2.5
-- Department codes: "CS" = "Computer Science", "MATH" = "Mathematics", etc.`;
+Time formats — always return 24-hour "HH:MM":
+- Exact time ranges like "1-2:15", "from 9 to 10:30", "2pm-3:15pm" → set startTime and endTime exactly.
+  - For ambiguous hours without am/pm, assume PM if the start hour is 1-7 (normal class hours), else AM.
+  - "9-10:30" → startTime "09:00", endTime "10:30" (AM).
+  - "1-2:15" → startTime "13:00", endTime "14:15" (PM).
+  - "8-9:15" → startTime "08:00", endTime "09:15" (AM — before 1).
+- Loose descriptors use the after/before fields instead:
+  - "morning" → startTimeBefore "12:00"
+  - "afternoon" → startTimeAfter "12:00", endTimeBefore "17:00"
+  - "evening" → startTimeAfter "17:00"
+  - "no 8ams" → startTimeAfter "09:00"
+
+Days:
+- "MWF" → ["Mon", "Wed", "Fri"]
+- "TTh", "Tu/Th", "tuesday thursday", "Tuesday Thursday" → ["Tue", "Thu"]
+- "MW" → ["Mon", "Wed"]
+- "TR" → ["Tue", "Thu"]
+
+Departments and fulfills:
+- "CS" = "Computer Science", "MATH" = "Mathematics", "ENGL"/"english" = "English", etc. Prefer full department names.
+- "humanities" or "humanities elective" → fulfills: ["Humanities Elective"]
+- "writing" → fulfills: ["Writing Requirement"]
+- "quant" or "quantitative" → fulfills: ["Quantitative Requirement"]
+- "diversity" → fulfills: ["Diversity Requirement"]
+- "gen ed" — leave fulfills null unless a specific requirement is named.
+
+Professor synonyms:
+- "nice", "easy professor", "good professor" → minProfRating 3.5
+- "easy class" (difficulty, not rating) → maxDifficulty 2.5
+
+Seats:
+- "open", "available", "not closed" → minSeatsOpen 1
+
+Always set unused filters to null. Never invent filters the student didn't imply.`;

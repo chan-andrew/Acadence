@@ -1,5 +1,7 @@
 export interface ParsedFilters {
   days: string[] | null;
+  startTime: string | null;
+  endTime: string | null;
   startTimeAfter: string | null;
   startTimeBefore: string | null;
   endTimeBefore: string | null;
@@ -16,7 +18,7 @@ export interface ParsedFilters {
 export interface ParsedQuery {
   filters: ParsedFilters;
   conversational_response: string;
-  intent: "search" | "remove" | "info" | "general";
+  intent: "search" | "add" | "remove" | "info" | "general";
 }
 
 export interface CourseWithDetails {

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseQuery } from "@/lib/ai/parseQuery";
 import { queryCourses } from "@/lib/db/courses";
+import { prisma } from "@/lib/prisma";
+import { rankSections } from "@/lib/utils/rankSections";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,10 +21,30 @@ export async function POST(request: NextRequest) {
 
     const parsed = await parseQuery(message, { currentSchedule });
 
-    let courses: Awaited<ReturnType<typeof queryCourses>> = [];
+    if (currentSchedule && currentSchedule.length > 0) {
+      const scheduled = await prisma.section.findMany({
+        where: { id: { in: currentSchedule } },
+        select: { courseId: true },
+      });
+      const merged = new Set<string>([
+        ...(parsed.filters.excludeCourseIds ?? []),
+        ...scheduled.map((s) => s.courseId),
+      ]);
+      parsed.filters.excludeCourseIds = Array.from(merged);
+    }
 
-    if (parsed.intent === "search") {
-      courses = await queryCourses(parsed.filters);
+    let courses: Awaited<ReturnType<typeof queryCourses>> = [];
+    let recommendedId: string | null = null;
+
+    if (parsed.intent === "search" || parsed.intent === "add") {
+      const matched = await queryCourses(parsed.filters);
+      if (parsed.intent === "add") {
+        const ranked = rankSections(matched).slice(0, 5);
+        courses = ranked;
+        recommendedId = ranked[0]?.id ?? null;
+      } else {
+        courses = matched;
+      }
     }
 
     const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
@@ -32,6 +54,7 @@ export async function POST(request: NextRequest) {
       intent: parsed.intent,
       courses,
       filters: parsed.filters,
+      recommendedId,
       aiEnabled: hasApiKey,
     });
   } catch (error) {

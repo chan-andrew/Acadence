@@ -13,9 +13,9 @@
   --text-primary: #1C1917;
   --text-secondary: #78716C;
   --text-tertiary: #A8A29E;
-  --accent: #2563EB;
-  --accent-hover: #1D4ED8;
-  --accent-soft: #EFF6FF;
+  --accent: #0033FF;
+  --accent-hover: #0028CC;
+  --accent-soft: #E6ECFF;
   --danger: #DC2626;
   --success: #16A34A;
 }

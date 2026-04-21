@@ -3,16 +3,34 @@
 import { useState, useCallback } from "react";
 import { ChatMessage, SectionWithProfessor } from "@/types";
 
+export interface SendMessageResult {
+  courses: SectionWithProfessor[];
+  intent: "search" | "add" | "remove" | "info" | "general";
+  recommendedId: string | null;
+}
+
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
 
+  const appendAssistantMessage = useCallback((content: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content,
+        timestamp: new Date(),
+      },
+    ]);
+  }, []);
+
   const sendMessage = useCallback(
     async (
       content: string,
       currentSchedule: string[]
-    ): Promise<SectionWithProfessor[]> => {
+    ): Promise<SendMessageResult> => {
       const userMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "user",
@@ -43,7 +61,11 @@ export function useChat() {
         };
         setMessages((prev) => [...prev, assistantMessage]);
 
-        return data.courses || [];
+        return {
+          courses: data.courses || [],
+          intent: data.intent || "search",
+          recommendedId: data.recommendedId ?? null,
+        };
       } catch {
         const errorMessage: ChatMessage = {
           id: crypto.randomUUID(),
@@ -53,7 +75,7 @@ export function useChat() {
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errorMessage]);
-        return [];
+        return { courses: [], intent: "search", recommendedId: null };
       } finally {
         setIsLoading(false);
       }
@@ -61,5 +83,11 @@ export function useChat() {
     []
   );
 
-  return { messages, isLoading, sendMessage, aiEnabled };
+  return {
+    messages,
+    isLoading,
+    sendMessage,
+    appendAssistantMessage,
+    aiEnabled,
+  };
 }
