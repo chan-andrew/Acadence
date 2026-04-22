@@ -29,6 +29,9 @@
   --text-primary: #FAFAF8;
   --text-secondary: #A8A29E;
   --text-tertiary: #78716C;
+  --accent: #60A5FA;
+  --accent-hover: #93C5FD;
+  --accent-soft: #1E3A5F;
 }
 
 body {

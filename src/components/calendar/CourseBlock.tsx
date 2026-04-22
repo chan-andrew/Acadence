@@ -3,6 +3,7 @@
 import { CalendarBlock } from "@/hooks/useCalendar";
 import { getDepartmentColor } from "@/lib/utils/colors";
 import { formatTime } from "@/lib/utils/formatTime";
+import { useTheme } from "@/hooks/useTheme";
 import { AlertTriangle } from "lucide-react";
 
 interface CourseBlockProps {
@@ -11,7 +12,8 @@ interface CourseBlockProps {
 }
 
 export function CourseBlock({ block, onClick }: CourseBlockProps) {
-  const color = getDepartmentColor(block.section.course.department);
+  const { theme } = useTheme();
+  const color = getDepartmentColor(block.section.course.department, theme);
 
   return (
     <button

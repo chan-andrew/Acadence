@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { SectionWithProfessor } from "@/types";
+import { useTerm } from "@/hooks/useTerm";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ProfessorRating } from "./ProfessorRating";
@@ -39,6 +40,7 @@ interface CourseBrowserProps {
 }
 
 export function CourseBrowser({ addedIds, onAdd }: CourseBrowserProps) {
+  const { term } = useTerm();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDept, setSelectedDept] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,7 +60,7 @@ export function CourseBrowser({ addedIds, onAdd }: CourseBrowserProps) {
       .finally(() => setDeptLoading(false));
   }, []);
 
-  // Fetch courses when dept or search changes
+  // Fetch courses when dept, search, or term changes
   const fetchCourses = useCallback(async () => {
     if (!selectedDept && !searchQuery) {
       setCourses([]);
@@ -69,6 +71,7 @@ export function CourseBrowser({ addedIds, onAdd }: CourseBrowserProps) {
       const params = new URLSearchParams();
       if (selectedDept) params.set("department", selectedDept);
       if (searchQuery) params.set("q", searchQuery);
+      params.set("term", term);
       const res = await fetch(`/api/courses?${params}`);
       const data = await res.json();
       if (Array.isArray(data)) setCourses(data);
@@ -77,7 +80,7 @@ export function CourseBrowser({ addedIds, onAdd }: CourseBrowserProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedDept, searchQuery]);
+  }, [selectedDept, searchQuery, term]);
 
   useEffect(() => {
     const timer = setTimeout(fetchCourses, 300);

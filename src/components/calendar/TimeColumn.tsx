@@ -11,7 +11,7 @@ export function TimeColumn({ hours, hourHeight }: TimeColumnProps) {
       {hours.map((hour) => (
         <div
           key={hour}
-          className="text-xs text-tertiary text-right pr-3 relative"
+          className="text-xs text-secondary text-right pr-3 relative"
           style={{ height: `${hourHeight}px` }}
         >
           <span className="absolute -top-2 right-3">

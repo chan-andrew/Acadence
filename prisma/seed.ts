@@ -528,111 +528,115 @@ async function main() {
 
     const sections: SectionInput[] = [];
 
-    for (let s = 0; s < numSections; s++) {
-      const prof = deptProfs[s % deptProfs.length];
-      const sectionNumber = String(s + 1).padStart(3, "0");
+    const TERMS = ["Fall 2026", "Spring 2027", "Fall 2027", "Spring 2028"] as const;
 
-      // Vary seats slightly per section
-      const totalSeats = baseTotalSeats + Math.floor(seededRandom() * 30) - 15;
+    for (const term of TERMS) {
+      for (let s = 0; s < numSections; s++) {
+        const prof = deptProfs[s % deptProfs.length];
+        const sectionNumber = String(s + 1).padStart(3, "0");
 
-      // ~15% of sections should be full
-      const isFull = seededRandom() < 0.15;
-      let openSeats: number;
-      let waitlist = 0;
-      if (isFull) {
-        openSeats = 0;
-        waitlist = Math.floor(seededRandom() * 12) + 1;
-        fullSectionCount++;
-      } else {
-        openSeats = Math.floor(seededRandom() * totalSeats * 0.6) + 1;
-      }
+        // Vary seats slightly per section
+        const totalSeats = baseTotalSeats + Math.floor(seededRandom() * 30) - 15;
 
-      // Pick time slot — every lecture is either MWF (50min) or TTh (75min)
-      let days: string[];
-      let startTime: string;
-      let endTime: string;
-
-      if (seededRandom() < 0.5) {
-        days = ["M", "W", "F"];
-        const slot = mwfSlots[s % mwfSlots.length];
-        startTime = slot.start;
-        endTime = slot.end;
-      } else {
-        days = ["T", "Th"];
-        const slot = tthSlots[s % tthSlots.length];
-        startTime = slot.start;
-        endTime = slot.end;
-      }
-
-      const location = buildings[s % buildings.length];
-
-      sections.push({
-        sectionNumber,
-        professorId: prof.id,
-        days,
-        startTime,
-        endTime,
-        location,
-        totalSeats,
-        openSeats,
-        waitlist,
-        term: "Fall 2026",
-        type: "Lecture",
-      });
-      totalSectionCount++;
-    }
-
-    // Add lab sections for science/CS courses
-    if (cDef.hasLab) {
-      const labCount = Math.min(numSections, 2 + Math.floor(seededRandom() * 2));
-      for (let l = 0; l < labCount; l++) {
-        const prof = deptProfs[(numSections + l) % deptProfs.length];
-        const labSeats = 24 + Math.floor(seededRandom() * 12);
+        // ~15% of sections should be full
         const isFull = seededRandom() < 0.15;
-        const labSlot = tthSlots[l % tthSlots.length];
+        let openSeats: number;
+        let waitlist = 0;
+        if (isFull) {
+          openSeats = 0;
+          waitlist = Math.floor(seededRandom() * 12) + 1;
+          fullSectionCount++;
+        } else {
+          openSeats = Math.floor(seededRandom() * totalSeats * 0.6) + 1;
+        }
+
+        // Pick time slot — every lecture is either MWF (50min) or TTh (75min)
+        let days: string[];
+        let startTime: string;
+        let endTime: string;
+
+        if (seededRandom() < 0.5) {
+          days = ["M", "W", "F"];
+          const slot = mwfSlots[s % mwfSlots.length];
+          startTime = slot.start;
+          endTime = slot.end;
+        } else {
+          days = ["T", "Th"];
+          const slot = tthSlots[s % tthSlots.length];
+          startTime = slot.start;
+          endTime = slot.end;
+        }
+
+        const location = buildings[s % buildings.length];
 
         sections.push({
-          sectionNumber: `L${String(l + 1).padStart(2, "0")}`,
+          sectionNumber,
           professorId: prof.id,
-          days: ["T", "Th"],
-          startTime: labSlot.start,
-          endTime: labSlot.end,
-          location: pick(buildings),
-          totalSeats: labSeats,
-          openSeats: isFull ? 0 : Math.floor(seededRandom() * labSeats * 0.5) + 1,
-          waitlist: isFull ? Math.floor(seededRandom() * 8) + 1 : 0,
-          term: "Fall 2026",
-          type: "Lab",
+          days,
+          startTime,
+          endTime,
+          location,
+          totalSeats,
+          openSeats,
+          waitlist,
+          term,
+          type: "Lecture",
         });
         totalSectionCount++;
-        if (isFull) fullSectionCount++;
       }
-    }
 
-    // Add recitation sections for courses that have them
-    if (cDef.hasRecitation) {
-      const recCount = Math.min(numSections, 2 + Math.floor(seededRandom() * 2));
-      for (let r = 0; r < recCount; r++) {
-        const prof = deptProfs[(numSections + r) % deptProfs.length];
-        const recSeats = 30 + Math.floor(seededRandom() * 15);
-        const isFull = seededRandom() < 0.15;
-        const recSlot = mwfSlots[(r + 2) % mwfSlots.length];
+      // Add lab sections for science/CS courses
+      if (cDef.hasLab) {
+        const labCount = Math.min(numSections, 2 + Math.floor(seededRandom() * 2));
+        for (let l = 0; l < labCount; l++) {
+          const prof = deptProfs[(numSections + l) % deptProfs.length];
+          const labSeats = 24 + Math.floor(seededRandom() * 12);
+          const isFull = seededRandom() < 0.15;
+          const labSlot = tthSlots[l % tthSlots.length];
 
-        sections.push({
-          sectionNumber: `R${String(r + 1).padStart(2, "0")}`,
-          professorId: prof.id,
-          days: ["M", "W", "F"],
-          startTime: recSlot.start,
-          endTime: recSlot.end,
-          location: pick(buildings),
-          totalSeats: recSeats,
-          openSeats: isFull ? 0 : Math.floor(seededRandom() * recSeats * 0.5) + 1,
-          waitlist: isFull ? Math.floor(seededRandom() * 6) + 1 : 0,
-          term: "Fall 2026",
-          type: "Recitation",
-        });
-        totalSectionCount++;
-        if (isFull) fullSectionCount++;
+          sections.push({
+            sectionNumber: `L${String(l + 1).padStart(2, "0")}`,
+            professorId: prof.id,
+            days: ["T", "Th"],
+            startTime: labSlot.start,
+            endTime: labSlot.end,
+            location: pick(buildings),
+            totalSeats: labSeats,
+            openSeats: isFull ? 0 : Math.floor(seededRandom() * labSeats * 0.5) + 1,
+            waitlist: isFull ? Math.floor(seededRandom() * 8) + 1 : 0,
+            term,
+            type: "Lab",
+          });
+          totalSectionCount++;
+          if (isFull) fullSectionCount++;
+        }
+      }
+
+      // Add recitation sections for courses that have them
+      if (cDef.hasRecitation) {
+        const recCount = Math.min(numSections, 2 + Math.floor(seededRandom() * 2));
+        for (let r = 0; r < recCount; r++) {
+          const prof = deptProfs[(numSections + r) % deptProfs.length];
+          const recSeats = 30 + Math.floor(seededRandom() * 15);
+          const isFull = seededRandom() < 0.15;
+          const recSlot = mwfSlots[(r + 2) % mwfSlots.length];
+
+          sections.push({
+            sectionNumber: `R${String(r + 1).padStart(2, "0")}`,
+            professorId: prof.id,
+            days: ["M", "W", "F"],
+            startTime: recSlot.start,
+            endTime: recSlot.end,
+            location: pick(buildings),
+            totalSeats: recSeats,
+            openSeats: isFull ? 0 : Math.floor(seededRandom() * recSeats * 0.5) + 1,
+            waitlist: isFull ? Math.floor(seededRandom() * 6) + 1 : 0,
+            term,
+            type: "Recitation",
+          });
+          totalSectionCount++;
+          if (isFull) fullSectionCount++;
+        }
       }
     }
 

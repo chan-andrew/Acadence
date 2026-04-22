@@ -65,7 +65,7 @@ export function WeeklyCalendar({
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="absolute left-0 right-0 border-t border-border/50"
+                  className="absolute left-0 right-0 border-t border-border/50 dark:border-border-hover/80"
                   style={{ top: `${(hour - 8) * hourHeight}px` }}
                 />
               ))}

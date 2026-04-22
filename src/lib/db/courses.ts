@@ -2,12 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { ParsedFilters } from "@/lib/ai/types";
 import type { SectionWhereInput } from "@/generated/prisma/models/Section";
 
-export async function queryCourses(filters: ParsedFilters) {
+export async function queryCourses(
+  filters: ParsedFilters,
+  options: { term?: string } = {}
+) {
   // Build where clause dynamically to avoid type issues with Prisma 7
   const conditions: Record<string, unknown>[] = [];
   const courseConditions: Record<string, unknown>[] = [];
 
-  conditions.push({ term: "Fall 2026" });
+  conditions.push({ term: options.term ?? "Fall 2026" });
 
   if (filters.days && filters.days.length > 0) {
     conditions.push({ days: { hasSome: filters.days } });

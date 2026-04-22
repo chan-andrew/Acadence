@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { ChatMessage, SectionWithProfessor } from "@/types";
+import { useTerm } from "@/hooks/useTerm";
 
 export interface SendMessageResult {
   courses: SectionWithProfessor[];
@@ -10,6 +11,7 @@ export interface SendMessageResult {
 }
 
 export function useChat() {
+  const { term } = useTerm();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -44,7 +46,7 @@ export function useChat() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: content, currentSchedule }),
+          body: JSON.stringify({ message: content, currentSchedule, term }),
         });
 
         if (!res.ok) throw new Error("Failed to send message");
@@ -80,7 +82,7 @@ export function useChat() {
         setIsLoading(false);
       }
     },
-    []
+    [term]
   );
 
   return {

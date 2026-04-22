@@ -18,8 +18,15 @@ const DEPARTMENT_COLORS: Record<string, { bg: string; text: string }> = {
 
 const FALLBACK_COLOR = { bg: "#E5E7EB", text: "#1F2937" }; // gray
 
-export function getDepartmentColor(department: string) {
-  return DEPARTMENT_COLORS[department] ?? FALLBACK_COLOR;
+export function getDepartmentColor(
+  department: string,
+  theme: "light" | "dark" = "light"
+) {
+  const c = DEPARTMENT_COLORS[department] ?? FALLBACK_COLOR;
+  // In dark mode, swap so the saturated dark hue becomes the tinted block
+  // background and the light pastel becomes the readable foreground text.
+  if (theme === "dark") return { bg: c.text, text: c.bg };
+  return c;
 }
 
 export { DEPARTMENT_COLORS };

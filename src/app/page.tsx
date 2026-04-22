@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { ArrowRight, MessageSquare, BarChart3, Zap } from "lucide-react";
+import { MessageSquare, BarChart3, Zap } from "lucide-react";
 import { AnimatedPreview } from "@/components/landing/AnimatedPreview";
+import { SignInCTA } from "@/components/landing/SignInCTA";
 
 export default function LandingPage() {
   return (
@@ -11,12 +11,7 @@ export default function LandingPage() {
           <span className="text-lg font-semibold text-primary tracking-tight">
             Acadence
           </span>
-          <Link
-            href="/dashboard"
-            className="text-sm text-secondary hover:text-primary transition-colors"
-          >
-            Open app
-          </Link>
+          <SignInCTA variant="nav" label="Open app" />
         </div>
       </nav>
 
@@ -29,13 +24,7 @@ export default function LandingPage() {
           AI-powered course scheduling that understands what you need.
           Describe your ideal schedule in plain English.
         </p>
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent-hover transition-colors duration-150"
-        >
-          Get started
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <SignInCTA variant="hero" label="Get started" />
       </section>
 
       {/* Animated Preview */}
@@ -88,12 +77,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
           <span className="text-sm text-tertiary">Acadence</span>
           <div className="flex items-center gap-4">
-            <Link
-              href="/dashboard"
-              className="text-xs text-secondary hover:text-primary transition-colors"
-            >
-              Dashboard
-            </Link>
+            <SignInCTA variant="footer" label="Dashboard" />
           </div>
         </div>
       </footer>

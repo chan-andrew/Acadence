@@ -1,32 +1,18 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useTheme } from "@/hooks/useTheme";
+import { TermSelector } from "./TermSelector";
+import { UserMenu } from "./UserMenu";
 
 interface HeaderProps {
-  totalCredits: number;
-  conflictCount: number;
+  totalCredits?: number;
+  conflictCount?: number;
 }
 
-export function Header({ totalCredits, conflictCount }: HeaderProps) {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      setDark(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    setDark((prev) => {
-      const next = !prev;
-      document.documentElement.classList.toggle("dark", next);
-      localStorage.setItem("theme", next ? "dark" : "light");
-      return next;
-    });
-  };
+export function Header({ totalCredits = 0, conflictCount = 0 }: HeaderProps) {
+  const { theme, toggleTheme } = useTheme();
+  const dark = theme === "dark";
 
   return (
     <header className="h-14 border-b border-border bg-surface flex items-center justify-between px-6 shrink-0">
@@ -34,9 +20,7 @@ export function Header({ totalCredits, conflictCount }: HeaderProps) {
         <h1 className="text-lg font-semibold text-primary tracking-tight">
           Acadence
         </h1>
-        <span className="text-xs text-tertiary border border-border rounded-md px-2 py-0.5">
-          Fall 2026
-        </span>
+        <TermSelector />
       </div>
 
       <div className="flex items-center gap-4">
@@ -52,11 +36,12 @@ export function Header({ totalCredits, conflictCount }: HeaderProps) {
         )}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-surface transition-colors"
+          className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-background transition-colors"
           aria-label="Toggle theme"
         >
           {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
+        <UserMenu />
       </div>
     </header>
   );

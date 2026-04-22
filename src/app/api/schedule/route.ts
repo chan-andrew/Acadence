@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { getSchedule, saveSchedule } from "@/lib/db/schedules";
-
-const DEFAULT_USER = "anonymous";
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const term = searchParams.get("term") || "Fall 2026";
-    const userId = searchParams.get("userId") || DEFAULT_USER;
 
-    const schedule = await getSchedule(userId, term);
+    const schedule = await getSchedule(session.user.id, term);
     return NextResponse.json(schedule || { sections: [], sectionDetails: [] });
   } catch (error) {
     console.error("Schedule GET error:", error);
@@ -22,12 +26,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { sectionIds, term, name, userId } = body as {
+    const { sectionIds, term, name } = body as {
       sectionIds: string[];
       term?: string;
       name?: string;
-      userId?: string;
     };
 
     if (!Array.isArray(sectionIds)) {
@@ -38,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const schedule = await saveSchedule(
-      userId || DEFAULT_USER,
+      session.user.id,
       term || "Fall 2026",
       sectionIds,
       name

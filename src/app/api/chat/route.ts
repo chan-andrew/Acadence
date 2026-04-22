@@ -7,9 +7,10 @@ import { rankSections } from "@/lib/utils/rankSections";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, currentSchedule } = body as {
+    const { message, currentSchedule, term } = body as {
       message: string;
       currentSchedule?: string[];
+      term?: string;
     };
 
     if (!message || typeof message !== "string" || message.length > 2000) {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     let recommendedId: string | null = null;
 
     if (parsed.intent === "search" || parsed.intent === "add") {
-      const matched = await queryCourses(parsed.filters);
+      const matched = await queryCourses(parsed.filters, { term });
       if (parsed.intent === "add") {
         const ranked = rankSections(matched).slice(0, 5);
         courses = ranked;
