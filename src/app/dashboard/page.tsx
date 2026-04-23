@@ -90,7 +90,7 @@ export default function DashboardPage() {
             `Time conflict with ${conflict.existingSection.course.code} on ${formatDays(
               conflict.overlappingDays
             )}`,
-            "warning"
+            "error"
           );
         }
       }
@@ -111,7 +111,11 @@ export default function DashboardPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <Header totalCredits={totalCredits} conflictCount={conflicts.length} />
+      <Header
+        totalCredits={totalCredits}
+        conflictCount={conflicts.length}
+        hasSchedule={sections.length > 0}
+      />
 
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left panel: Chat or Browse */}

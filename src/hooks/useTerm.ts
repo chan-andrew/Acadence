@@ -1,15 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { TERMS, type Term, isTerm } from "@/lib/utils/terms";
 
-export const TERMS = [
-  "Fall 2026",
-  "Spring 2027",
-  "Fall 2027",
-  "Spring 2028",
-] as const;
+export { TERMS, type Term };
 
-export type Term = (typeof TERMS)[number];
 const DEFAULT_TERM: Term = "Fall 2026";
 const STORAGE_KEY = "acadence:term";
 const TERM_EVENT = "acadence:term-change";
@@ -17,7 +12,7 @@ const TERM_EVENT = "acadence:term-change";
 function readInitial(): Term {
   if (typeof window === "undefined") return DEFAULT_TERM;
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved && (TERMS as readonly string[]).includes(saved)) return saved as Term;
+  if (saved && isTerm(saved)) return saved;
   return DEFAULT_TERM;
 }
 
@@ -30,8 +25,8 @@ export function useTerm() {
 
   useEffect(() => {
     function onStorage(e: StorageEvent) {
-      if (e.key === STORAGE_KEY && e.newValue && (TERMS as readonly string[]).includes(e.newValue)) {
-        setTermState(e.newValue as Term);
+      if (e.key === STORAGE_KEY && e.newValue && isTerm(e.newValue)) {
+        setTermState(e.newValue);
       }
     }
     function onCustom(e: Event) {

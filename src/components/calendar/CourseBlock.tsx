@@ -29,7 +29,7 @@ export function CourseBlock({ block, onClick }: CourseBlockProps) {
       aria-label={`${block.section.course.code} - ${block.section.course.title}`}
     >
       {block.hasConflict && (
-        <AlertTriangle className="w-3 h-3 text-red-600 absolute top-1 right-1" />
+        <AlertTriangle className="w-3 h-3 text-red-600 absolute top-1 right-1 animate-jiggle" />
       )}
       <div className="font-bold text-xs leading-tight truncate">
         {block.section.course.code}

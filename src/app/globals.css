@@ -97,6 +97,16 @@ body {
   to { opacity: 0; }
 }
 
+@keyframes jiggle {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-3px) rotate(-2deg); }
+  30% { transform: translateX(3px) rotate(2deg); }
+  45% { transform: translateX(-2px) rotate(-1deg); }
+  60% { transform: translateX(2px) rotate(1deg); }
+  75% { transform: translateX(-1px); }
+  90% { transform: translateX(1px); }
+}
+
 .animate-slide-up {
   animation: slide-up 200ms ease-out;
 }
@@ -111,4 +121,8 @@ body {
 
 .animate-fade-out {
   animation: fade-out 150ms ease-out forwards;
+}
+
+.animate-jiggle {
+  animation: jiggle 500ms ease-in-out;
 }
